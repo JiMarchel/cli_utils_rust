@@ -1,2 +1,5 @@
-/target
+target/
+/src/*/gen_table
+/build/
+/tmp/
 .txt
