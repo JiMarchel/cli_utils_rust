@@ -9,7 +9,7 @@ pub struct Config {
     pub number_nonblank: bool,
     pub show_ends: bool,
 }
-
+//TODO:squeeze-blank, -s
 impl Config {
     pub fn number(contents: &str) {
         for (i, line) in contents.lines().enumerate() {
