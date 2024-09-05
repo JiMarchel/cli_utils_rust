@@ -1,50 +1,36 @@
-use std::{
-    fs::File,
-    io::{self, Read},
-};
-
-pub struct Config {
-    pub file_name: String,
+#[derive(Debug)]
+pub struct Config<'a> {
+    pub file_name: &'a str,
     pub number: bool,
     pub number_nonblank: bool,
     pub show_ends: bool,
+    pub squeeze_blank: bool,
 }
-//TODO:squeeze-blank, -s
-impl Config {
-    pub fn number(contents: &str) {
-        for (i, line) in contents.lines().enumerate() {
-            println!("{:>6}  {}", i + 1, line)
-        }
-    }
 
-    pub fn number_nonblank(contents: &str) {
-        for (i, line) in contents.lines().enumerate() {
-            if line.trim().is_empty() {
-                println!("{}", line)
-            } else {
-                println!("{:>6} {}", i + 1, line)
-            }
-        }
-    }
+impl<'a> Config<'a> {
+    pub fn process(&self, contents: &str) {
+        let mut previous_was_blank = false;
+        let mut line_count = 0;
 
-    pub fn show_ends(contents: &str) {
         for line in contents.lines() {
-            println!("{}$", line)
+            let is_blank = line.trim().is_empty();
+
+            if self.squeeze_blank && is_blank && previous_was_blank {
+                continue;
+            }
+
+            if (self.number_nonblank && !is_blank) || self.number {
+                line_count += 1;
+                print!("{:>6} ", line_count);
+            }
+
+            if self.show_ends {
+                println!("{}$", line);
+            } else {
+                println!("{}", line);
+            }
+
+            previous_was_blank = is_blank;
         }
     }
-}
-
-pub fn cat(config: Config) -> io::Result<()> {
-    let mut file = File::open(config.file_name)?;
-    let mut contents = String::new();
-    file.read_to_string(&mut contents)?;
-
-    match (config.number, config.number_nonblank, config.show_ends) {
-        (true, false, false) => Config::number(&contents),
-        (false, true, false) => Config::number_nonblank(&contents),
-        (false, false, true) => Config::show_ends(&contents),
-        (_, _, _) => println!("{}", contents),
-    }
-
-    Ok(())
 }
