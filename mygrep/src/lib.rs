@@ -4,7 +4,7 @@ pub struct Config {
     pub query: String,
     pub filename: String,
 }
-
+//TODO:
 impl Config {
     pub fn new(args: &[String]) -> Result<Config, &'static str> {
         if args.len() < 3 {
